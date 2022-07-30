@@ -1,0 +1,20 @@
+# permissions for end users to view dhcpsubnets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dhcpsubnet-viewer-role
+rules:
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpsubnets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpsubnets/status
+  verbs:
+  - get

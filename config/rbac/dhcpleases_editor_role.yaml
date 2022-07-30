@@ -1,0 +1,24 @@
+# permissions for end users to edit dhcpleases.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dhcpleases-editor-role
+rules:
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpleases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpleases/status
+  verbs:
+  - get

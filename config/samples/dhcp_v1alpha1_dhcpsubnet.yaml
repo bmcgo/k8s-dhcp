@@ -1,0 +1,6 @@
+apiVersion: dhcp.bmcgo.dev/v1alpha1
+kind: DHCPSubnet
+metadata:
+  name: dhcpsubnet-sample
+spec:
+  # TODO(user): Add fields here

@@ -1,0 +1,24 @@
+# permissions for end users to edit dhcphosts.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dhcphost-editor-role
+rules:
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcphosts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcphosts/status
+  verbs:
+  - get

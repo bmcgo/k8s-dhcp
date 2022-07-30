@@ -1,0 +1,20 @@
+# permissions for end users to view dhcpservers.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dhcpserver-viewer-role
+rules:
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpservers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcpservers/status
+  verbs:
+  - get

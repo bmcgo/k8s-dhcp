@@ -1,0 +1,20 @@
+# permissions for end users to view dhcphosts.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dhcphost-viewer-role
+rules:
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcphosts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dhcp.bmcgo.dev
+  resources:
+  - dhcphosts/status
+  verbs:
+  - get
