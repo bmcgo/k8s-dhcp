@@ -15,7 +15,12 @@ spec:
     singular: dhcpleases
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Leases count
+      jsonPath: .spec.numLeases
+      name: numLeases
+      type: integer
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DHCPLeases is the Schema for the dhcpleases API
@@ -35,13 +40,69 @@ spec:
           spec:
             description: DHCPLeasesSpec defines the desired state of DHCPLeases
             properties:
-              foo:
-                description: Foo is an example field of DHCPLeases. Edit dhcpleases_types.go
-                  to remove/update
-                type: string
+              leases:
+                additionalProperties:
+                  properties:
+                    ackSent:
+                      type: boolean
+                    bootFileName:
+                      type: string
+                    dns:
+                      items:
+                        type: string
+                      type: array
+                    gateway:
+                      type: string
+                    hostname:
+                      type: string
+                    ip:
+                      type: string
+                    lastUpdate:
+                      format: date-time
+                      type: string
+                    leaseTime:
+                      type: integer
+                    mac:
+                      type: string
+                    options:
+                      items:
+                        properties:
+                          id:
+                            type: integer
+                          type:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - id
+                        - type
+                        - value
+                        type: object
+                      type: array
+                    serverId:
+                      type: string
+                    subnet:
+                      type: string
+                  required:
+                  - ackSent
+                  - mac
+                  - serverId
+                  - subnet
+                  type: object
+                type: object
+              numLeases:
+                type: integer
+            required:
+            - leases
+            - numLeases
             type: object
           status:
-            description: DHCPLeasesStatus defines the observed state of DHCPLeases
+            description: DHCPLeasesStatus defines the observed state of DHCPLease
+            properties:
+              errorMessage:
+                type: string
+            required:
+            - errorMessage
             type: object
         type: object
     served: true

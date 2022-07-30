@@ -1,0 +1,196 @@
+
+dhcp discover:
+
+IP (tos 0x0, ttl 64, id 264, offset 0, flags [none], proto UDP (17), length 431)
+    0.0.0.0.68 > 255.255.255.255.67: [udp sum ok] BOOTP/DHCP, Request from 52:54:00:62:40:01, length 403, xid 0x486ed019, secs 4, Flags [none] (0x0000)
+          Client-Ethernet-Address 52:54:00:62:40:01
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Discover
+            MSZ Option 57, length 2: 1472
+            ARCH Option 93, length 2: 0
+            NDI Option 94, length 3: 1.2.1
+            Vendor-Class Option 60, length 32: "PXEClient:Arch:00000:UNDI:002001"
+            User-Class Option 77, length 4:
+              instance#1: ERROR: invalid option
+            Parameter-Request Option 55, length 23:
+              Subnet-Mask, Default-Gateway, Domain-Name-Server, LOG
+              Hostname, Domain-Name, RP, MTU
+              Vendor-Option, Vendor-Class, TFTP, BF
+              Option 119, Option 128, Option 129, Option 130
+              Option 131, Option 132, Option 133, Option 134
+              Option 135, Option 175, Option 203
+            T175 Option 175, length 51: 177.5.1.26.244.16.65.235.3.1.0.0.23.1.1.34.1.1.19.1.1.20.1.1.17.1.1.39.1.1.25.1.1.41.1.1.16.1.2.33.1.1.21.1.1.24.1.1.18.1.1
+            Client-ID Option 61, length 7: ether 52:54:00:62:40:01
+            GUID Option 97, length 17: 0.51.182.4.38.119.208.74.71.161.8.134.45.225.160.135.181
+            END Option 255, length 0
+
+dhcp discover from relay:
+
+IP (tos 0x0, ttl 64, id 58115, offset 0, flags [DF], proto UDP (17), length 431)
+    10.12.1.10.67 > 10.12.1.1.67: [udp sum ok] BOOTP/DHCP, Request from 52:54:00:62:40:01, length 403, hops 1, xid 0xc4882c23, secs 4, Flags [none] (0x0000)
+          Gateway-IP 10.10.0.1
+          Client-Ethernet-Address 52:54:00:62:40:01
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Discover
+            MSZ Option 57, length 2: 1472
+            ARCH Option 93, length 2: 0
+            NDI Option 94, length 3: 1.2.1
+            Vendor-Class Option 60, length 32: "PXEClient:Arch:00000:UNDI:002001"
+            User-Class Option 77, length 4:
+              instance#1: ERROR: invalid option
+            Parameter-Request Option 55, length 23:
+              Subnet-Mask, Default-Gateway, Domain-Name-Server, LOG
+              Hostname, Domain-Name, RP, MTU
+              Vendor-Option, Vendor-Class, TFTP, BF
+              Option 119, Option 128, Option 129, Option 130
+              Option 131, Option 132, Option 133, Option 134
+              Option 135, Option 175, Option 203
+            T175 Option 175, length 51: 177.5.1.26.244.16.65.235.3.1.0.0.23.1.1.34.1.1.19.1.1.20.1.1.17.1.1.39.1.1.25.1.1.41.1.1.16.1.2.33.1.1.21.1.1.24.1.1.18.1.1
+            Client-ID Option 61, length 7: ether 52:54:00:62:40:01
+            GUID Option 97, length 17: 0.51.182.4.38.119.208.74.71.161.8.134.45.225.160.135.181
+            END Option 255, length 0
+
+dhcp release
+
+IP (tos 0x0, ttl 64, id 31057, offset 0, flags [DF], proto UDP (17), length 329)
+    10.0.1.204.68 > 10.0.1.3.67: [udp sum ok] BOOTP/DHCP, Request from 00:19:d4:6c:fe:3b, length 301, xid 0xbe4f8e66, Flags [none] (0x0000)
+          Client-IP 10.0.1.204
+          Client-Ethernet-Address 00:19:d4:6c:fe:3b
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Release
+            Server-ID Option 54, length 4: 10.0.1.3
+            Hostname Option 12, length 40: "ipa-8eec33d6-d9ac-4d9f-8e86-5c6727e98454"
+            Client-ID Option 61, length 7: ether 00:19:d4:6c:fe:3b
+            END Option 255, length 0
+
+
+boot libvirt client via dnsmasq
+
+IP (tos 0x0, ttl 64, id 359, offset 0, flags [none], proto UDP (17), length 431)
+    0.0.0.0.68 > 255.255.255.255.67: [udp sum ok] BOOTP/DHCP, Request from 00:87:88:8e:28:42, length 403, xid 0x88607449, secs 4, Flags [none] (0x0000)
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Discover
+            MSZ Option 57, length 2: 1472
+            ARCH Option 93, length 2: 0
+            NDI Option 94, length 3: 1.2.1
+            Vendor-Class Option 60, length 32: "PXEClient:Arch:00000:UNDI:002001"
+            User-Class Option 77, length 4:
+              instance#1: ERROR: invalid option
+            Parameter-Request Option 55, length 23:
+              Subnet-Mask, Default-Gateway, Domain-Name-Server, LOG
+              Hostname, Domain-Name, RP, MTU
+              Vendor-Option, Vendor-Class, TFTP, BF
+              Option 119, Option 128, Option 129, Option 130
+              Option 131, Option 132, Option 133, Option 134
+              Option 135, Option 175, Option 203
+            T175 Option 175, length 51: 177.5.1.26.244.16.0.235.3.1.0.0.23.1.1.34.1.1.19.1.1.20.1.1.17.1.1.39.1.1.25.1.1.41.1.1.16.1.2.33.1.1.21.1.1.24.1.1.18.1.1
+            Client-ID Option 61, length 7: ether 00:87:88:8e:28:42
+            GUID Option 97, length 17: 0.230.32.54.78.104.184.125.66.147.246.204.86.113.114.35.140
+            END Option 255, length 0
+IP (tos 0xc0, ttl 64, id 13363, offset 0, flags [none], proto UDP (17), length 328)
+    10.0.1.3.67 > 10.0.1.200.68: [bad udp cksum 0x1810 -> 0xca61!] BOOTP/DHCP, Reply, length 300, xid 0x88607449, secs 4, Flags [none] (0x0000)
+          Your-IP 10.0.1.200
+          Server-IP 10.0.1.3
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          file "http://10.0.1.142/dualboot.ipxe"
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Offer
+            Server-ID Option 54, length 4: 10.0.1.3
+            Lease-Time Option 51, length 4: 3600
+            RN Option 58, length 4: 1800
+            RB Option 59, length 4: 3150
+            Subnet-Mask Option 1, length 4: 255.255.255.0
+            BR Option 28, length 4: 10.0.1.255
+            Default-Gateway Option 3, length 4: 10.0.1.3
+            END Option 255, length 0
+            PAD Option 0, length 0, occurs 14
+IP (tos 0x0, ttl 64, id 616, offset 0, flags [none], proto UDP (17), length 431)
+    0.0.0.0.68 > 255.255.255.255.67: [udp sum ok] BOOTP/DHCP, Request from 00:87:88:8e:28:42, length 403, xid 0x88607449, secs 10, Flags [none] (0x0000)
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Discover
+            MSZ Option 57, length 2: 1472
+            ARCH Option 93, length 2: 0
+            NDI Option 94, length 3: 1.2.1
+            Vendor-Class Option 60, length 32: "PXEClient:Arch:00000:UNDI:002001"
+            User-Class Option 77, length 4:
+              instance#1: ERROR: invalid option
+            Parameter-Request Option 55, length 23:
+              Subnet-Mask, Default-Gateway, Domain-Name-Server, LOG
+              Hostname, Domain-Name, RP, MTU
+              Vendor-Option, Vendor-Class, TFTP, BF
+              Option 119, Option 128, Option 129, Option 130
+              Option 131, Option 132, Option 133, Option 134
+              Option 135, Option 175, Option 203
+            T175 Option 175, length 51: 177.5.1.26.244.16.0.235.3.1.0.0.23.1.1.34.1.1.19.1.1.20.1.1.17.1.1.39.1.1.25.1.1.41.1.1.16.1.2.33.1.1.21.1.1.24.1.1.18.1.1
+            Client-ID Option 61, length 7: ether 00:87:88:8e:28:42
+            GUID Option 97, length 17: 0.230.32.54.78.104.184.125.66.147.246.204.86.113.114.35.140
+            END Option 255, length 0
+IP (tos 0xc0, ttl 64, id 13396, offset 0, flags [none], proto UDP (17), length 328)
+    10.0.1.3.67 > 10.0.1.200.68: [bad udp cksum 0x1810 -> 0xca5b!] BOOTP/DHCP, Reply, length 300, xid 0x88607449, secs 10, Flags [none] (0x0000)
+          Your-IP 10.0.1.200
+          Server-IP 10.0.1.3
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          file "http://10.0.1.142/dualboot.ipxe"
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Offer
+            Server-ID Option 54, length 4: 10.0.1.3
+            Lease-Time Option 51, length 4: 3600
+            RN Option 58, length 4: 1800
+            RB Option 59, length 4: 3150
+            Subnet-Mask Option 1, length 4: 255.255.255.0
+            BR Option 28, length 4: 10.0.1.255
+            Default-Gateway Option 3, length 4: 10.0.1.3
+            END Option 255, length 0
+            PAD Option 0, length 0, occurs 14
+IP (tos 0x0, ttl 64, id 873, offset 0, flags [none], proto UDP (17), length 443)
+    0.0.0.0.68 > 255.255.255.255.67: [udp sum ok] BOOTP/DHCP, Request from 00:87:88:8e:28:42, length 415, xid 0x88607449, secs 18, Flags [none] (0x0000)
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: Request
+            MSZ Option 57, length 2: 1472
+            ARCH Option 93, length 2: 0
+            NDI Option 94, length 3: 1.2.1
+            Vendor-Class Option 60, length 32: "PXEClient:Arch:00000:UNDI:002001"
+            User-Class Option 77, length 4:
+              instance#1: ERROR: invalid option
+            Parameter-Request Option 55, length 23:
+              Subnet-Mask, Default-Gateway, Domain-Name-Server, LOG
+              Hostname, Domain-Name, RP, MTU
+              Vendor-Option, Vendor-Class, TFTP, BF
+              Option 119, Option 128, Option 129, Option 130
+              Option 131, Option 132, Option 133, Option 134
+              Option 135, Option 175, Option 203
+            T175 Option 175, length 51: 177.5.1.26.244.16.0.235.3.1.0.0.23.1.1.34.1.1.19.1.1.20.1.1.17.1.1.39.1.1.25.1.1.41.1.1.16.1.2.33.1.1.21.1.1.24.1.1.18.1.1
+            Client-ID Option 61, length 7: ether 00:87:88:8e:28:42
+            GUID Option 97, length 17: 0.230.32.54.78.104.184.125.66.147.246.204.86.113.114.35.140
+            Server-ID Option 54, length 4: 10.0.1.3
+            Requested-IP Option 50, length 4: 10.0.1.200
+            END Option 255, length 0
+IP (tos 0xc0, ttl 64, id 13691, offset 0, flags [none], proto UDP (17), length 328)
+    10.0.1.3.67 > 10.0.1.200.68: [bad udp cksum 0x1810 -> 0xc753!] BOOTP/DHCP, Reply, length 300, xid 0x88607449, secs 18, Flags [none] (0x0000)
+          Your-IP 10.0.1.200
+          Server-IP 10.0.1.3
+          Client-Ethernet-Address 00:87:88:8e:28:42
+          file "http://10.0.1.142/dualboot.ipxe"
+          Vendor-rfc1048 Extensions
+            Magic Cookie 0x63825363
+            DHCP-Message Option 53, length 1: ACK
+            Server-ID Option 54, length 4: 10.0.1.3
+            Lease-Time Option 51, length 4: 3600
+            RN Option 58, length 4: 1800
+            RB Option 59, length 4: 3150
+            Subnet-Mask Option 1, length 4: 255.255.255.0
+            BR Option 28, length 4: 10.0.1.255
+            Default-Gateway Option 3, length 4: 10.0.1.3
+            END Option 255, length 0
+            PAD Option 0, length 0, occurs 14

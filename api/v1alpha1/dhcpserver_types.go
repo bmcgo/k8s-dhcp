@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The BMCGO Authors.
+Copyright 2022.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,29 +17,27 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/bmcgo/k8s-dhcp/dhcp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // DHCPServerSpec defines the desired state of DHCPServer
 type DHCPServerSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of DHCPServer. Edit dhcpserver_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	ListenInterface string `json:"listenInterface,omitempty"`
+	ListenAddress   string `json:"listenAddress,omitempty"`
+	ReuseAddr       bool   `json:"reuseAddr,omitempty"`
 }
 
 // DHCPServerStatus defines the observed state of DHCPServer
 type DHCPServerStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	ErrorMessage string      `json:"errorMessage"`
+	LastUpdate   metav1.Time `json:"lastUpdate"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="interface",type="string",JSONPath=".spec.listenInterface",description="Listen interface",priority=0
+//+kubebuilder:printcolumn:name="listen",type="string",JSONPath=".spec.listenAddress",description="Listen address",priority=0
 
 // DHCPServer is the Schema for the dhcpservers API
 type DHCPServer struct {
@@ -61,4 +59,12 @@ type DHCPServerList struct {
 
 func init() {
 	SchemeBuilder.Register(&DHCPServer{}, &DHCPServerList{})
+}
+
+func (s *DHCPServer) ToListen() dhcp.Listen {
+	return dhcp.Listen{
+		Name:      s.Name,
+		Interface: s.Spec.ListenInterface,
+		Addr:      s.Spec.ListenAddress,
+	}
 }

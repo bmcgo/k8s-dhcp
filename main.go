@@ -18,11 +18,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
+
+	"github.com/go-logr/logr"
+
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
+	"github.com/bmcgo/k8s-dhcp/dhcp"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -50,13 +57,9 @@ func init() {
 
 func main() {
 	var metricsAddr string
-	var enableLeaderElection bool
 	var probeAddr string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
-		"Enable leader election for controller manager. "+
-			"Enabling this will ensure there is only one active controller manager.")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -65,31 +68,38 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	ctx := ctrl.SetupSignalHandler()
+	logger := &Logger{rlog: log.FromContext(ctx)}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
-		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "3020aa57.bmcgo.dev",
+		LeaderElection:         false,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	if err = (&controllers.DHCPServerReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+	knownObjectsStorage := controllers.NewObjectsCache()
+
+	serverReconciler := controllers.NewDHCPServerReconciler(mgr.GetClient(), mgr.GetScheme(), knownObjectsStorage, logger)
+	if err = serverReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DHCPServer")
 		os.Exit(1)
 	}
-	if err = (&controllers.DHCPSubnetReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
+
+	subnetReconciler := controllers.NewDHCPSubnetReconciler(mgr.GetClient(), mgr.GetScheme(), knownObjectsStorage)
+	if err = subnetReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "DHCPSubnet")
+		os.Exit(1)
+	}
+
+	hostReconciler := controllers.NewDHCPHostReconciler(mgr.GetClient(), mgr.GetScheme(), knownObjectsStorage)
+	if err = hostReconciler.SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DHCPLease")
 		os.Exit(1)
 	}
 	if err = (&controllers.DHCPHostReconciler{
@@ -99,11 +109,10 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DHCPHost")
 		os.Exit(1)
 	}
-	if err = (&controllers.DHCPLeasesReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DHCPLeases")
+
+	leasesReconciler := controllers.NewDHCPLeaseReconciler(mgr.GetClient(), mgr.GetScheme(), knownObjectsStorage, logger)
+	if err = leasesReconciler.SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "DHCPLease")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
@@ -116,10 +125,44 @@ func main() {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
+	dhcpServer, err := dhcp.NewServer(dhcp.ServerConfig{
+		Logger:             logger,
+		CallbackSaveLeases: leasesReconciler.CallbackSaveLeases,
+		Context:            ctx,
+	})
+	if err != nil {
+		setupLog.Error(err, "failed to create server")
+		os.Exit(2)
+	}
+	defer dhcpServer.Close()
+	serverReconciler.DHCPServer = dhcpServer
+	subnetReconciler.DHCPServer = dhcpServer
+	hostReconciler.DHCPServer = dhcpServer
+	leasesReconciler.DHCPServer = dhcpServer
 
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+type Logger struct {
+	rlog logr.Logger
+}
+
+func (l *Logger) Infof(format string, args ...interface{}) {
+	l.rlog.V(0).Info(fmt.Sprintf(format, args...))
+}
+
+func (l *Logger) Debugf(format string, args ...interface{}) {
+	l.rlog.V(1).Info(fmt.Sprintf(format, args...))
+}
+
+func (l *Logger) Errorf(err error, format string, args ...interface{}) {
+	l.rlog.Error(err, fmt.Sprintf(format, args...))
+}
+
+func (l *Logger) WithName(name string) dhcp.RLogger {
+	return &Logger{rlog: l.rlog.WithName(name)}
 }

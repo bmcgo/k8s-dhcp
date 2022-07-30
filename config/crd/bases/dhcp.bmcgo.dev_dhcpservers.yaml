@@ -15,7 +15,16 @@ spec:
     singular: dhcpserver
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Listen interface
+      jsonPath: .spec.listenInterface
+      name: interface
+      type: string
+    - description: Listen address
+      jsonPath: .spec.listenAddress
+      name: listen
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DHCPServer is the Schema for the dhcpservers API
@@ -35,13 +44,24 @@ spec:
           spec:
             description: DHCPServerSpec defines the desired state of DHCPServer
             properties:
-              foo:
-                description: Foo is an example field of DHCPServer. Edit dhcpserver_types.go
-                  to remove/update
+              listenAddress:
                 type: string
+              listenInterface:
+                type: string
+              reuseAddr:
+                type: boolean
             type: object
           status:
             description: DHCPServerStatus defines the observed state of DHCPServer
+            properties:
+              errorMessage:
+                type: string
+              lastUpdate:
+                format: date-time
+                type: string
+            required:
+            - errorMessage
+            - lastUpdate
             type: object
         type: object
     served: true

@@ -15,7 +15,20 @@ spec:
     singular: dhcphost
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: MAC
+      jsonPath: .spec.mac
+      name: mac
+      type: string
+    - description: IP
+      jsonPath: .spec.ip
+      name: ip
+      type: string
+    - description: IP
+      jsonPath: .spec.hostname
+      name: hostname
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: DHCPHost is the Schema for the dhcphosts API
@@ -35,10 +48,44 @@ spec:
           spec:
             description: DHCPHostSpec defines the desired state of DHCPHost
             properties:
-              foo:
-                description: Foo is an example field of DHCPHost. Edit dhcphost_types.go
-                  to remove/update
+              bootFileName:
                 type: string
+              dns:
+                items:
+                  type: string
+                type: array
+              gateway:
+                type: string
+              hostname:
+                type: string
+              ip:
+                type: string
+              leaseTime:
+                type: integer
+              mac:
+                type: string
+              options:
+                items:
+                  properties:
+                    id:
+                      type: integer
+                    type:
+                      type: string
+                    value:
+                      type: string
+                  required:
+                  - id
+                  - type
+                  - value
+                  type: object
+                type: array
+              serverHostName:
+                type: string
+              subnet:
+                type: string
+            required:
+            - mac
+            - subnet
             type: object
           status:
             description: DHCPHostStatus defines the observed state of DHCPHost

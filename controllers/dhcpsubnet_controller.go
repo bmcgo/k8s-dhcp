@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The BMCGO Authors.
+Copyright 2022.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"github.com/bmcgo/k8s-dhcp/dhcp"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -30,12 +34,24 @@ import (
 // DHCPSubnetReconciler reconciles a DHCPSubnet object
 type DHCPSubnetReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme       *runtime.Scheme
+	DHCPServer   *dhcp.Server
+	SubnetCache  map[string]dhcp.SubnetAddrPrefix
+	knownObjects *ObjectsCache
 }
 
-//+kubebuilder:rbac:groups=dhcp.bmcgo.dev,resources=dhcpsubnets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=dhcp.bmcgo.dev,resources=dhcpsubnets/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=dhcp.bmcgo.dev,resources=dhcpsubnets/finalizers,verbs=update
+func NewDHCPSubnetReconciler(c client.Client, scheme *runtime.Scheme, storage *ObjectsCache) *DHCPSubnetReconciler {
+	return &DHCPSubnetReconciler{
+		Client:       c,
+		Scheme:       scheme,
+		SubnetCache:  map[string]dhcp.SubnetAddrPrefix{},
+		knownObjects: storage,
+	}
+}
+
+//+kubebuilder:rbac:groups=dhcp.kaas.mirantis.com,resources=dhcpsubnets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=dhcp.kaas.mirantis.com,resources=dhcpsubnets/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=dhcp.kaas.mirantis.com,resources=dhcpsubnets/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -45,13 +61,46 @@ type DHCPSubnetReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.2/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *DHCPSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	l := log.FromContext(ctx)
+	l.Info("Reconcile subnet")
+	subnet := dhcpv1alpha1.DHCPSubnet{}
+	err := r.Client.Get(ctx, client.ObjectKey{
+		Namespace: req.Namespace,
+		Name:      req.Name,
+	}, &subnet)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			l.Info("subnet deleted")
+			sn, ok := r.SubnetCache[req.Name]
+			if !ok {
+				return ctrl.Result{Requeue: false}, fmt.Errorf("unknown subnet deleted %s", req.Name)
+			}
+			err = r.DHCPServer.DeleteSubnet(sn)
+			return ctrl.Result{Requeue: false}, err
+		}
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 30}, err
+	}
 
-	// TODO(user): your logic here
-
-	return ctrl.Result{}, nil
+	s := subnet.ToSubnet()
+	if !r.knownObjects.AddSubnetIfNotKnown(s) {
+		l.Info("Subnet already known")
+		return ctrl.Result{}, nil
+	}
+	r.SubnetCache[req.Name] = s.Subnet
+	err = r.DHCPServer.AddSubnet(s)
+	if err == nil {
+		for _, host := range r.knownObjects.PopUnknownHosts(s.Subnet) {
+			err := r.DHCPServer.AddHost(host.ToDHCPHost())
+			if err != nil {
+				l.Error(err, "Error adding previously saved host")
+			} else {
+				l.Info("Added previously saved host %s", host.Name)
+			}
+		}
+	}
+	return ctrl.Result{}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.

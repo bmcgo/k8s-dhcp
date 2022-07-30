@@ -6,7 +6,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcphosts
   verbs:
@@ -18,13 +18,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcphosts/finalizers
   verbs:
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcphosts/status
   verbs:
@@ -32,7 +32,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpleases
   verbs:
@@ -44,13 +44,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpleases/finalizers
   verbs:
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpleases/status
   verbs:
@@ -58,7 +58,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpservers
   verbs:
@@ -70,13 +70,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpservers/finalizers
   verbs:
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpservers/status
   verbs:
@@ -84,7 +84,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpsubnets
   verbs:
@@ -96,13 +96,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpsubnets/finalizers
   verbs:
   - update
 - apiGroups:
-  - dhcp.bmcgo.dev
+  - dhcp.kaas.mirantis.com
   resources:
   - dhcpsubnets/status
   verbs:

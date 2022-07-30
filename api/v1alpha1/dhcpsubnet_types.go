@@ -1,5 +1,5 @@
 /*
-Copyright 2022 The BMCGO Authors.
+Copyright 2022.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,29 +17,42 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"github.com/bmcgo/k8s-dhcp/dhcp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // DHCPSubnetSpec defines the desired state of DHCPSubnet
 type DHCPSubnetSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	Subnet         string   `json:"subnet"`
+	RangeFrom      string   `json:"rangeFrom"`
+	RangeTo        string   `json:"rangeTo"`
+	Gateway        string   `json:"gateway,omitempty"`
+	DNS            []string `json:"dns,omitempty"`
+	Options        []Option `json:"options,omitempty"`
+	ServerHostName string   `json:"serverHostName,omitempty"`
+	BootFileName   string   `json:"bootFileName,omitempty"`
+	LeaseTime      int      `json:"leaseTime,omitempty"`
 
-	// Foo is an example field of DHCPSubnet. Edit dhcpsubnet_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Server metav1.OwnerReference `json:"server,omitempty"`
+}
+
+type Option struct {
+	ID    uint8  `json:"id"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
 }
 
 // DHCPSubnetStatus defines the observed state of DHCPSubnet
 type DHCPSubnetStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	ErrorMessage string `json:"errorMessage"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:printcolumn:name="subnet",type="string",JSONPath=".spec.subnet",description="Subnet",priority=0
+//+kubebuilder:printcolumn:name="from",type="string",JSONPath=".spec.rangeFrom",description="Range From",priority=0
+//+kubebuilder:printcolumn:name="to",type="string",JSONPath=".spec.rangeTo",description="Range To",priority=0
+//+kubebuilder:printcolumn:name="gateway",type="string",JSONPath=".spec.gateway",description="Default gateway",priority=0
 
 // DHCPSubnet is the Schema for the dhcpsubnets API
 type DHCPSubnet struct {
@@ -61,4 +74,26 @@ type DHCPSubnetList struct {
 
 func init() {
 	SchemeBuilder.Register(&DHCPSubnet{}, &DHCPSubnetList{})
+}
+
+func (s *DHCPSubnet) ToSubnet() dhcp.Subnet {
+	sn := dhcp.Subnet{
+		Subnet:         dhcp.SubnetAddrPrefix(s.Spec.Subnet),
+		RangeFrom:      s.Spec.RangeFrom,
+		RangeTo:        s.Spec.RangeTo,
+		Gateway:        s.Spec.Gateway,
+		DNS:            s.Spec.DNS,
+		Options:        []dhcp.Option{},
+		LeaseTime:      s.Spec.LeaseTime,
+		ServerHostName: s.Spec.ServerHostName,
+		BootFileName:   s.Spec.BootFileName,
+	}
+	for _, opt := range s.Spec.Options {
+		sn.Options = append(sn.Options, dhcp.Option{
+			ID:    opt.ID,
+			Type:  opt.Type,
+			Value: opt.Value,
+		})
+	}
+	return sn
 }
