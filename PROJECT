@@ -1,0 +1,9 @@
+domain: bmcgo.dev
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: k8s-dhcp
+repo: github.com/bmcgo/k8s-dhcp
+version: "3"
