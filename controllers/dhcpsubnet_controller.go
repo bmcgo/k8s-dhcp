@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/bmcgo/k8s-dhcp/dhcp"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -34,18 +35,20 @@ import (
 // DHCPSubnetReconciler reconciles a DHCPSubnet object
 type DHCPSubnetReconciler struct {
 	client.Client
-	Scheme       *runtime.Scheme
-	DHCPServer   *dhcp.Server
-	SubnetCache  map[string]dhcp.SubnetAddrPrefix
-	knownObjects *ObjectsCache
+	Scheme            *runtime.Scheme
+	DHCPServer        *dhcp.Server
+	SubnetCache       map[string]dhcp.SubnetAddrPrefix
+	SubnetToObjectKey map[dhcp.SubnetAddrPrefix]client.ObjectKey
+	knownObjects      *ObjectsCache
 }
 
 func NewDHCPSubnetReconciler(c client.Client, scheme *runtime.Scheme, storage *ObjectsCache) *DHCPSubnetReconciler {
 	return &DHCPSubnetReconciler{
-		Client:       c,
-		Scheme:       scheme,
-		SubnetCache:  map[string]dhcp.SubnetAddrPrefix{},
-		knownObjects: storage,
+		Client:            c,
+		Scheme:            scheme,
+		SubnetCache:       map[string]dhcp.SubnetAddrPrefix{},
+		SubnetToObjectKey: map[dhcp.SubnetAddrPrefix]client.ObjectKey{},
+		knownObjects:      storage,
 	}
 }
 
@@ -77,12 +80,14 @@ func (r *DHCPSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			if !ok {
 				return ctrl.Result{Requeue: false}, fmt.Errorf("unknown subnet deleted %s", req.Name)
 			}
+			delete(r.SubnetToObjectKey, sn)
 			err = r.DHCPServer.DeleteSubnet(sn)
 			return ctrl.Result{Requeue: false}, err
 		}
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 30}, err
 	}
 
+	r.SubnetToObjectKey[dhcp.SubnetAddrPrefix(subnet.Spec.Subnet)] = client.ObjectKeyFromObject(&subnet)
 	s := subnet.ToSubnet()
 	if !r.knownObjects.AddSubnetIfNotKnown(s) {
 		l.Info("Subnet already known")
@@ -101,6 +106,48 @@ func (r *DHCPSubnetReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		}
 	}
 	return ctrl.Result{}, err
+}
+
+func (r *DHCPSubnetReconciler) CallbackSaveLeases(responses []dhcp.Response) error {
+	ctx := context.TODO()
+	//TODO: handle single response
+	subnetMap := map[dhcp.SubnetAddrPrefix][]dhcp.Lease{}
+	for _, response := range responses {
+		if subnetMap[response.Lease.Subnet] == nil {
+			subnetMap[response.Lease.Subnet] = make([]dhcp.Lease, 1)
+		}
+		subnetMap[response.Lease.Subnet] = append(subnetMap[response.Lease.Subnet], *response.Lease)
+	}
+	fmt.Println(subnetMap)
+	subnet := dhcpv1alpha1.DHCPSubnet{}
+	var err error
+	for subnetAddPrefix, leases := range subnetMap {
+		fmt.Println(leases)
+		objKey, ok := r.SubnetToObjectKey[subnetAddPrefix]
+		if !ok {
+			//TODO: log "unknown (possible deleted) subnet"
+			fmt.Printf("Unknown subnet %s\n", subnetAddPrefix)
+			continue
+		}
+		err = r.Client.Get(ctx, objKey, &subnet)
+		if err != nil {
+			return err
+		}
+		if subnet.Status.Leases == nil {
+			subnet.Status.Leases = map[string]dhcpv1alpha1.Lease{}
+		}
+		for _, lease := range leases {
+			subnet.Status.Leases[lease.MAC] = dhcpv1alpha1.Lease{
+				IP:        lease.IP.String(),
+				CreatedAt: metav1.Now(),
+			}
+		}
+		err = r.Status().Update(ctx, &subnet)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
