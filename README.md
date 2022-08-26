@@ -55,7 +55,7 @@ spec:
 * `options` list of dhcp options to be included in response. Optional.
 
 Each server instance may serve multiple subnets. Server will automatically detect proper subnet for each
-request, and will construct dhcp response according to `dhcpsubnet` and possibly `dhcplease` settings.
+request, and will construct dhcp response according to `dhcpsubnet` settings.
 
 Requests on unknown subnets will be ignored.
 
@@ -117,7 +117,6 @@ dhcpsubnet-test-relay         10.7.0.0/16    10.7.1.100    10.7.255.200    10.7.
 ```
 ## TODO:
 
-* keep as few dhcpleases objects as possible;
 * detect start of another server;
 * load all subnets, leases and hosts before starting the server;
 * configure namespace;
@@ -127,11 +126,8 @@ dhcpsubnet-test-relay         10.7.0.0/16    10.7.1.100    10.7.255.200    10.7.
 * handle hostnames;
 * support dhcp NAK;
 * support dhcp INFORM;
-* add validation webhooks;
-* add mutating webhooks to add OwnerRef;
 * conditional options;
 * respect requested options;
-* make test client;
 * add ReuseAddr property to server/listen;
 * exit if failed to bind;
 * dhcp option 43 (vendor-option-space);
