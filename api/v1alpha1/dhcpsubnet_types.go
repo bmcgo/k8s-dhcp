@@ -42,9 +42,15 @@ type Option struct {
 	Value string `json:"value"`
 }
 
+type Lease struct {
+	IP        string      `json:"ip"`
+	CreatedAt metav1.Time `json:"createdAt"`
+}
+
 // DHCPSubnetStatus defines the observed state of DHCPSubnet
 type DHCPSubnetStatus struct {
-	ErrorMessage string `json:"errorMessage"`
+	ErrorMessage string           `json:"errorMessage"`
+	Leases       map[string]Lease `json:"leases"`
 }
 
 //+kubebuilder:object:root=true

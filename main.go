@@ -58,8 +58,8 @@ func init() {
 func main() {
 	var metricsAddr string
 	var probeAddr string
-	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
-	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
+	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8180", "The address the metric endpoint binds to.")
+	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8181", "The address the probe endpoint binds to.")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -109,12 +109,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "DHCPHost")
 		os.Exit(1)
 	}
-
-	leasesReconciler := controllers.NewDHCPLeaseReconciler(mgr.GetClient(), mgr.GetScheme(), knownObjectsStorage, logger)
-	if err = leasesReconciler.SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "DHCPLease")
-		os.Exit(1)
-	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -127,7 +121,7 @@ func main() {
 	}
 	dhcpServer, err := dhcp.NewServer(dhcp.ServerConfig{
 		Logger:             logger,
-		CallbackSaveLeases: leasesReconciler.CallbackSaveLeases,
+		CallbackSaveLeases: subnetReconciler.CallbackSaveLeases,
 		Context:            ctx,
 	})
 	if err != nil {
@@ -138,7 +132,6 @@ func main() {
 	serverReconciler.DHCPServer = dhcpServer
 	subnetReconciler.DHCPServer = dhcpServer
 	hostReconciler.DHCPServer = dhcpServer
-	leasesReconciler.DHCPServer = dhcpServer
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {

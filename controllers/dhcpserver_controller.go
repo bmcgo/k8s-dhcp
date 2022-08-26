@@ -127,44 +127,6 @@ func (r *DHCPServerReconciler) Initialize(ctx context.Context) error {
 			return err
 		}
 	}
-
-	r.log.Infof("Loading all leases")
-	loaded := 0
-	failed := 0
-	leasesList := dhcpv1alpha1.DHCPLeasesList{}
-	err = r.Client.List(ctx, &leasesList)
-	if err != nil {
-		return err
-	}
-	leasesMap := map[string]dhcpv1alpha1.DHCPLeases{}
-	for _, leases := range leasesList.Items {
-		leasesMap[leases.Name] = leases
-	}
-	oldest := ""
-	for {
-		for key, leases := range leasesMap {
-			tmp := leasesMap[oldest].CreationTimestamp
-			if oldest == "" || leases.CreationTimestamp.Before(&tmp) {
-				oldest = key
-			}
-		}
-		leases := leasesMap[oldest].Spec.Leases
-		for _, lease := range leases {
-			err = r.DHCPServer.AddLease(lease.ToLease())
-			if err != nil {
-				r.log.Errorf(err, "failed to add lease")
-				failed++
-			} else {
-				loaded++
-			}
-		}
-		delete(leasesMap, oldest)
-		if len(leasesMap) == 0 {
-			break
-		}
-		oldest = ""
-	}
-	r.log.Infof("Leases loaded: %d (failed %d)", loaded, failed)
 	//TODO: load listeners
 	return nil
 }

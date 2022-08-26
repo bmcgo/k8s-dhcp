@@ -9,11 +9,10 @@ import (
 //ObjectsCache is temporary storage for objects with yet unknown owners,
 // e.g. at startup DHCPSubnet may be loaded before DHCPServer
 type ObjectsCache struct {
-	knownLeasesBatch map[string]*dhcpv1alpha1.DHCPLeases
-	knownSubnets     map[dhcp.SubnetAddrPrefix]dhcp.Subnet
-	unknownHosts     map[dhcp.SubnetAddrPrefix][]dhcpv1alpha1.DHCPHost
-	knownListens     map[string]*dhcpv1alpha1.DHCPServer
-	knownLeases      map[string]bool
+	knownSubnets map[dhcp.SubnetAddrPrefix]dhcp.Subnet
+	unknownHosts map[dhcp.SubnetAddrPrefix][]dhcpv1alpha1.DHCPHost
+	knownListens map[string]*dhcpv1alpha1.DHCPServer
+	knownLeases  map[string]bool
 
 	offersSavingLock   sync.Mutex
 	lock               sync.Mutex
@@ -23,7 +22,6 @@ type ObjectsCache struct {
 
 func NewObjectsCache() *ObjectsCache {
 	return &ObjectsCache{
-		knownLeasesBatch:   map[string]*dhcpv1alpha1.DHCPLeases{},
 		knownSubnets:       map[dhcp.SubnetAddrPrefix]dhcp.Subnet{},
 		unknownHosts:       map[dhcp.SubnetAddrPrefix][]dhcpv1alpha1.DHCPHost{},
 		knownListens:       map[string]*dhcpv1alpha1.DHCPServer{},
@@ -62,18 +60,6 @@ func (s *ObjectsCache) AddHostIfNotKnown(host dhcpv1alpha1.DHCPHost) bool {
 	return false
 }
 
-func (s *ObjectsCache) GetAllKnownLeasesExcept(batchToExclude string) map[string]bool {
-	leases := map[string]bool{}
-	for _, batch := range s.knownLeasesBatch {
-		if batch.Name != batchToExclude {
-			for _, lease := range batch.Spec.Leases {
-				leases[lease.MAC] = true
-			}
-		}
-	}
-	return leases
-}
-
 func (s *ObjectsCache) AddSubnetIfNotKnown(subnet dhcp.Subnet) bool {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -90,23 +76,4 @@ func (s *ObjectsCache) PopUnknownHosts(subnet dhcp.SubnetAddrPrefix) []dhcpv1alp
 	hosts := s.unknownHosts[subnet]
 	delete(s.unknownHosts, subnet)
 	return hosts
-}
-
-func (s *ObjectsCache) AddLeasesIfNotKnown(leases *dhcpv1alpha1.DHCPLeases) *dhcpv1alpha1.DHCPLeases {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	leasesFound, ok := s.knownLeasesBatch[leases.Name]
-	if ok {
-		return leasesFound
-	}
-	s.knownLeasesBatch[leases.Name] = leases
-	return nil
-}
-
-func (s *ObjectsCache) PopLeases(name string) *dhcpv1alpha1.DHCPLeases {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	leases := s.knownLeasesBatch[name]
-	delete(s.knownLeasesBatch, name)
-	return leases
 }

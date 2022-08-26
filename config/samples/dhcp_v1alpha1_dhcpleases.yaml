@@ -1,6 +1,0 @@
-apiVersion: dhcp.bmcgo.dev/v1alpha1
-kind: DHCPLeases
-metadata:
-  name: dhcpleases-sample
-spec:
-  # TODO(user): Add fields here
