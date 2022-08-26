@@ -9,7 +9,7 @@ The server can be configured by creating and editing kubernetes objects `dhcpser
 
 To start listening, at least one `dhcpserver` object must be created:
 ```yaml
-apiVersion: dhcp.kaas.mirantis.com/v1alpha1
+apiVersion: dhcp.bmcgo.dev/v1alpha1
 kind: DHCPServer
 metadata:
   name: dhcpserver-sample-1
@@ -25,7 +25,7 @@ spec:
 Each subnet is represented by `dhcpsubnet` object:
 
 ```yaml
-apiVersion: dhcp.kaas.mirantis.com/v1alpha1
+apiVersion: dhcp.bmcgo.dev/v1alpha1
 kind: DHCPSubnet
 metadata:
   name: dhcpsubnet-sample-broadcast
@@ -64,7 +64,7 @@ Requests on unknown subnets will be ignored.
 Per host configuration may be applied if needed by creating `dhcphost` objects:
 
 ```yaml
-apiVersion: dhcp.kaas.mirantis.com/v1alpha1
+apiVersion: dhcp.bmcgo.dev/v1alpha1
 kind: DHCPHost
 metadata:
   name: host-sample-1
