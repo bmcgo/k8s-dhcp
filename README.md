@@ -115,6 +115,25 @@ dhcpsubnet-sample-veth1       10.11.0.0/16   10.11.1.1     10.11.255.250   10.11
 dhcpsubnet-test-relay         10.7.0.0/16    10.7.1.100    10.7.255.200    10.7.0.1
 
 ```
+
+Leases are stored in `dhcpsubnet` status:
+
+```
+$ kubectl get dhcpsubnet dhcpsubnet-sample-br1 -o yaml
+...
+status:
+  errorMessage: ""
+  leases:
+    52:54:10:00:1c:01:
+      ip: 10.7.255.100
+      updatedAt: "2022-08-27T10:27:26Z"
+    52:54:10:00:1c:02:
+      ip: 10.7.255.101
+      updatedAt: "2022-08-27T10:27:28Z"
+    52:54:10:00:1c:03:
+      ip: 10.7.255.102
+      updatedAt: "2022-08-27T10:27:29Z"
+```
 ## TODO:
 
 * detect start of another server;

@@ -114,9 +114,10 @@ func (r *DHCPSubnetReconciler) CallbackSaveLeases(responses []dhcp.Response) err
 	subnetMap := map[dhcp.SubnetAddrPrefix][]dhcp.Lease{}
 	for _, response := range responses {
 		if subnetMap[response.Lease.Subnet] == nil {
-			subnetMap[response.Lease.Subnet] = make([]dhcp.Lease, 1)
+			subnetMap[response.Lease.Subnet] = []dhcp.Lease{*response.Lease}
+		} else {
+			subnetMap[response.Lease.Subnet] = append(subnetMap[response.Lease.Subnet], *response.Lease)
 		}
-		subnetMap[response.Lease.Subnet] = append(subnetMap[response.Lease.Subnet], *response.Lease)
 	}
 	fmt.Println(subnetMap)
 	subnet := dhcpv1alpha1.DHCPSubnet{}
@@ -139,7 +140,7 @@ func (r *DHCPSubnetReconciler) CallbackSaveLeases(responses []dhcp.Response) err
 		for _, lease := range leases {
 			subnet.Status.Leases[lease.MAC] = dhcpv1alpha1.Lease{
 				IP:        lease.IP.String(),
-				CreatedAt: metav1.Now(),
+				UpdatedAt: metav1.Now(),
 			}
 		}
 		err = r.Status().Update(ctx, &subnet)

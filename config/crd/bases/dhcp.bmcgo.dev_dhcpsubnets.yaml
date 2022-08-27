@@ -132,14 +132,14 @@ spec:
               leases:
                 additionalProperties:
                   properties:
-                    createdAt:
-                      format: date-time
-                      type: string
                     ip:
                       type: string
+                    updatedAt:
+                      format: date-time
+                      type: string
                   required:
-                  - createdAt
                   - ip
+                  - updatedAt
                   type: object
                 type: object
             required:

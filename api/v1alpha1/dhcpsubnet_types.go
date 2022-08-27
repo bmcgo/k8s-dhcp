@@ -44,7 +44,7 @@ type Option struct {
 
 type Lease struct {
 	IP        string      `json:"ip"`
-	CreatedAt metav1.Time `json:"createdAt"`
+	UpdatedAt metav1.Time `json:"updatedAt"`
 }
 
 // DHCPSubnetStatus defines the observed state of DHCPSubnet
