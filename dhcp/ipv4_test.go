@@ -1,6 +1,8 @@
 package dhcp
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestIPv4_Parse_String_Next_Inc(t *testing.T) {
 	i, err := ParseIPv4("1.2.3.254")

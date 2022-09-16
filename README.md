@@ -136,6 +136,7 @@ status:
 ```
 ## TODO:
 
+* fix receiving DHCP REQUEST (it is always unicast!)
 * detect start of another server;
 * load all subnets, leases and hosts before starting the server;
 * configure namespace;
